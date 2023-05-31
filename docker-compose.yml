@@ -1,0 +1,96 @@
+# For more information: https://laravel.com/docs/sail
+version: '3'
+services:
+    www:
+        build:
+            context: ./docker/8.1
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: sail-8.1/app
+        container_name: 'www'
+        ports:
+            - '${APP_PORT:-80}:80'
+            - '${LARAVEL_WEBSOCKETS_PORT:-6001}:6001'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - db
+            - redis
+            - meilisearch
+        restart: always
+    db:
+        image: 'postgres:13'
+        container_name: 'db'
+        ports:
+            - '5436:5432'
+        environment:
+          POSTGRES_DB: '${DB_DATABASE}'
+          POSTGRES_USER: '${DB_USERNAME}'
+          POSTGRES_PASSWORD: '${DB_PASSWORD}'
+          PGPASSWORD: '${DB_PASSWORD}'
+        volumes:
+            - 'saildb:/var/lib/postgresql/data'
+        networks:
+            - sail
+        healthcheck:
+          test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -D ${DB_DATABASE}"]
+          interval: 10s
+          timeout: 5s
+          retries: 5
+        restart: always
+    redis:
+      image: 'redis:alpine'
+      container_name: 'redis'
+      ports:
+        - '6379:6379'
+      command: --requirepass ${REDIS_PASSWORD}
+      volumes:
+        - 'sailredis:/data'
+      networks:
+        - sail
+      healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+    adminer:
+      image: adminer
+      container_name: adminer
+      restart: always
+      depends_on:
+        - db
+      ports:
+        - 8080:8080
+      networks:
+        - sail
+    meilisearch:
+      image: 'getmeili/meilisearch:v1.0.0'
+      container_name: 'meilisearch'
+#      command: ./meilisearch --master-key='${MEILISEARCH_KEY}' --no-analytics
+      environment:
+        MEILI_API_KEY: ${MEILISEARCH_API_KEY}
+        MEILI_MASTER_KEY: ${MEILISEARCH_KEY}
+        MEILI_ENV: ${MEILI_ENV}
+      ports:
+        - '${FORWARD_MEILISEARCH_PORT:-7700}:7700'
+      volumes:
+        - 'sailmeilisearch:/meili_data'
+      networks:
+        - sail
+      healthcheck:
+        test: [ "CMD", "wget", "--no-verbose", "--spider",  "http://localhost:7700/health" ]
+        retries: 3
+        timeout: 5s
+networks:
+    sail:
+        driver: bridge
+volumes:
+    saildb:
+        driver: local
+    sailredis:
+        driver: local
+    sailmeilisearch:
+        driver: local
