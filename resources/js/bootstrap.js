@@ -12,15 +12,10 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 
 
-import jquery from 'jquery';
+// import 'jquery'
 
-window.jquery = jquery;
+// import 'bootstrap'
 
-
-
-import bootstrap from 'bootstrap';
-
-window.bootstrap = bootstrap;
 
 
 

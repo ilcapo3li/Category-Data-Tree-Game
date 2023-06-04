@@ -1,6 +1,38 @@
 @extends('app')
 @section('content')
 <div class="mt-16">
+    {{-- <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">First</th>
+                <th scope="col">Last</th>
+                <th scope="col">Handle</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">1</th>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>@mdo</td>
+              </tr>
+              <tr>
+                <th scope="row">2</th>
+                <td>Jacob</td>
+                <td>Thornton</td>
+                <td>@fat</td>
+              </tr>
+              <tr>
+                <th scope="row">3</th>
+                <td>Larry</td>
+                <td>the Bird</td>
+                <td>@twitter</td>
+              </tr>
+            </tbody>
+          </table>
+    </div> --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
         @forelse($categories as $category)
         @empty
